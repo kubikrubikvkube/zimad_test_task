@@ -5,49 +5,67 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.TaskDTO;
 import lombok.extern.java.Log;
 import net.ApiClient;
-import net.ApiRequests;
 import net.HttpsClients;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static net.ApiRequests.createNewTask;
+import static net.ApiRequests.getActiveTasks;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Log
 public class TasksTest {
-    private HttpClient httpClient;
-    private ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper;
+    private ApiClient apiClient;
+
+    @BeforeAll
+    static void beforeAll() {
+        objectMapper = new ObjectMapper();
+    }
 
     @BeforeEach
     void setUp() {
-        httpClient = HttpsClients.getNewClient();
-        objectMapper = new ObjectMapper();
+        apiClient = new ApiClient(HttpsClients.getNewClient());
     }
 
     @Test
     public void testTaskCanBeCreated() throws URISyntaxException, IOException, InterruptedException {
-        ApiClient apiClient = new ApiClient(httpClient);
-        var taskUUID = UUID.randomUUID().toString();
-        var contentText = "ZiMAD task with UUID %s".formatted(taskUUID);
+        var contentText = "ZiMAD task with UUID %s".formatted(UUID.randomUUID().toString());
         var contentRequest = """
                 {
                    "content":"%s"
                 }
                 """.formatted(contentText);
-        HttpRequest getCreateTaskRequest = ApiRequests.createNewTask(contentRequest);
-        var httpResponse = apiClient.sendRequest(getCreateTaskRequest);
-        assertEquals(httpResponse.statusCode(), 200, "Expected status code is 200");
+
+        var httpResponse = apiClient.sendRequest(createNewTask(contentRequest));
+        assertEquals(httpResponse.statusCode(), 200);
+        assertNotNull(httpResponse.body());
         TaskDTO createdTask = objectMapper.readerFor(TaskDTO.class).readValue(httpResponse.body());
         var createdTaskId = createdTask.getId();
-        assertNotNull(createdTaskId);
+        checkCreatedTask(createdTask, contentText);
+
+        HttpResponse<String> activeTasksResponse = apiClient.sendRequest(getActiveTasks());
+        assertEquals(activeTasksResponse.statusCode(), 200, "Expected status code is 200");
+        assertNotNull(activeTasksResponse.body());
+        List<TaskDTO> activeTasks = objectMapper.readValue(activeTasksResponse.body(), new TypeReference<>() {
+        });
+        Optional<TaskDTO> taskFromApiOpt = activeTasks.stream().filter(task -> task.getId().equals(createdTaskId)).findAny();
+        assertTrue(taskFromApiOpt.isPresent());
+        TaskDTO taskFromApi = taskFromApiOpt.get();
+        checkCreatedTask(taskFromApi, contentText);
+        assertEquals(createdTask, taskFromApi);
+    }
+
+    private void checkCreatedTask(TaskDTO createdTask, String contentText) {
+        assertNotNull(createdTask.getId());
         assertNotNull(createdTask.getProject_id());
         assertNotNull(createdTask.getSection_id());
         assertNotNull(createdTask.getOrder());
@@ -58,16 +76,6 @@ public class TasksTest {
         assertEquals(createdTask.getComment_count(), 0);
         assertNotNull(createdTask.getCreated());
         assertEquals(createdTask.getUrl(), "https://todoist.com/showTask?id=" + createdTask.getId());
-        HttpRequest getActiveTasks = ApiRequests.getActiveTasks();
-        HttpResponse<String> activeTasksResponse = apiClient.sendRequest(getActiveTasks);
-        assertEquals(activeTasksResponse.statusCode(), 200, "Expected status code is 200");
-        List<TaskDTO> activeTasks = objectMapper.readValue(activeTasksResponse.body(), new TypeReference<>() {
-        });
-        Optional<TaskDTO> createdTaskFromActiveTasksOpt = activeTasks.stream().filter(task -> task.getId().equals(createdTaskId)).findAny();
-        assertTrue(createdTaskFromActiveTasksOpt.isPresent());
-        TaskDTO taskDTO = createdTaskFromActiveTasksOpt.get();
-        assertEquals(createdTask, taskDTO);
     }
-
 }
 
