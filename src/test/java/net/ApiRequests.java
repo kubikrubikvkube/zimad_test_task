@@ -41,6 +41,15 @@ public class ApiRequests {
                 .build();
     }
 
+    public static HttpRequest getActiveTasks() {
+        var tasksEndpointUri = getUriFromEndpoint(Endpoint.TASKS);
+        return HttpRequest.newBuilder()
+                .GET()
+                .uri(tasksEndpointUri)
+                .header("Authorization", "Bearer " + AuthorizationCredentials.API_TOKEN)
+                .build();
+    }
+
     private static URI getUriFromEndpoint(Endpoint endpoint) {
         var endPointUrl = endpoint.getEndpointUrl();
         try {
