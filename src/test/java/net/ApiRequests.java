@@ -9,7 +9,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.UUID;
 
 import static java.text.MessageFormat.format;
@@ -25,15 +24,12 @@ public class ApiRequests {
                 .build();
     }
 
-    public static HttpRequest createNewTask(@NonNull String content) {
-        return createNewTask(content, null);
-    }
 
-    public static HttpRequest createNewTask(@NonNull String content, Map<String, String> parameters) {
+    public static HttpRequest createNewTask(@NonNull String body) {
         var tasksEndpointURI = getUriFromEndpoint(Endpoint.TASKS);
         var requestUUID = UUID.randomUUID().toString();
         return HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(content, StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
                 .uri(tasksEndpointURI)
                 .header("Authorization", "Bearer " + AuthorizationCredentials.API_TOKEN)
                 .header("Content-Type", "application/json")

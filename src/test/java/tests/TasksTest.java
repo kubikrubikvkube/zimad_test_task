@@ -8,10 +8,12 @@ import net.ApiClient;
 import net.HttpsClients;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +30,7 @@ public class TasksTest {
 
     @BeforeAll
     static void beforeAll() {
-        objectMapper = new ObjectMapper();
+        objectMapper = DefaultObjectMapper.getMapper();
     }
 
     @BeforeEach
@@ -37,7 +39,8 @@ public class TasksTest {
     }
 
     @Test
-    public void testTaskCanBeCreated() throws URISyntaxException, IOException, InterruptedException {
+    @DisplayName("New task with default parameters should be created via API. It should be present in 'Active Tasks' list")
+    public void newTaskIsPresentInActiveTasks() throws IOException {
         var contentText = "ZiMAD task with UUID %s".formatted(UUID.randomUUID().toString());
         var contentRequest = """
                 {
@@ -50,7 +53,7 @@ public class TasksTest {
         assertNotNull(httpResponse.body());
         TaskDTO createdTask = objectMapper.readerFor(TaskDTO.class).readValue(httpResponse.body());
         var createdTaskId = createdTask.getId();
-        checkCreatedTask(createdTask, contentText);
+        checkCreatedDefaultTask(createdTask, contentText);
 
         HttpResponse<String> activeTasksResponse = apiClient.sendRequest(getActiveTasks());
         assertEquals(activeTasksResponse.statusCode(), 200, "Expected status code is 200");
@@ -60,11 +63,18 @@ public class TasksTest {
         Optional<TaskDTO> taskFromApiOpt = activeTasks.stream().filter(task -> task.getId().equals(createdTaskId)).findAny();
         assertTrue(taskFromApiOpt.isPresent());
         TaskDTO taskFromApi = taskFromApiOpt.get();
-        checkCreatedTask(taskFromApi, contentText);
+        checkCreatedDefaultTask(taskFromApi, contentText);
         assertEquals(createdTask, taskFromApi);
     }
 
-    private void checkCreatedTask(TaskDTO createdTask, String contentText) {
+    @ParameterizedTest
+    @DisplayName("All positive test cases should be passed. Implemented only context-unaware cases.")
+    @CsvFileSource(resources = "TaskTestsPositiveCases.csv", numLinesToSkip = 1)
+    public void allPositiveTestCasesShouldBePassed(String content, Integer order, Integer priority, String due_string, String due_date, String due_lang) {
+        log.info("content,order,priority,due_string,due_date,due_lang");
+    }
+
+    private void checkCreatedDefaultTask(TaskDTO createdTask, String contentText) {
         assertNotNull(createdTask.getId());
         assertNotNull(createdTask.getProject_id());
         assertNotNull(createdTask.getSection_id());
