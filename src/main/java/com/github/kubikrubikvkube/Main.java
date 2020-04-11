@@ -1,4 +1,4 @@
-package cim.github.kubikrubikvkube;
+package com.github.kubikrubikvkube;
 
 
 import lombok.extern.java.Log;

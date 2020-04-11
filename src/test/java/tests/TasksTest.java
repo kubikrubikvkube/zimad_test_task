@@ -11,11 +11,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Log
-public class AuthorizationTest {
+public class TasksTest {
     private HttpClient httpClient;
 
     @BeforeEach
@@ -24,11 +25,18 @@ public class AuthorizationTest {
     }
 
     @Test
-    public void testAuthorizationCanBePerformed() throws URISyntaxException, IOException, InterruptedException {
-        HttpRequest getProjectsRequest = ApiRequests.getProjects();
+    public void testTaskCanBeCreated() throws URISyntaxException, IOException, InterruptedException {
+        var taskUUID = UUID.randomUUID().toString();
+        var content = """
+                {
+                   "content":"{0}"
+                }
+                """.formatted(taskUUID);
+        HttpRequest getCreateTaskRequest = ApiRequests.createNewTask(content);
         ApiClient apiClient = new ApiClient(httpClient);
-        var httpResponse = apiClient.sendRequest(getProjectsRequest);
+        var httpResponse = apiClient.sendRequest(getCreateTaskRequest);
         assertEquals(httpResponse.statusCode(), 200, "Expected status code is 200");
     }
 
 }
+
