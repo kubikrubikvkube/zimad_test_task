@@ -1,2 +1,6 @@
-content,order,priority,due_string,due_date,due_lang
-random,1,1,,2021-01-20,FR
+content,order,priority,due_lang
+random,1,1,FR
+кириллица,2,2,EN
+спецсимволы%,3,3,RU
+123,4,4,RU
+всесразу123(*№,2,2,EN

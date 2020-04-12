@@ -25,7 +25,7 @@ import static net.ApiRequests.getActiveTasksRequest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Log
-public class TasksTest {
+public class NewTaskTest {
     private static ObjectMapper objectMapper;
     private ApiClient apiClient;
 
@@ -71,20 +71,19 @@ public class TasksTest {
     @ParameterizedTest
     @DisplayName("All positive test cases should be passed. Implemented only context-unaware cases.")
     @CsvFileSource(resources = "TaskTestsPositiveCases.csv", numLinesToSkip = 1)
-    public void allPositiveTestCasesShouldBePassed(String content, Integer order, Integer priority, String due_string, String due_date, String due_lang) throws IOException {
+    public void allPositiveTestCasesShouldBePassed(String content, Integer order, Integer priority, String due_lang) throws IOException {
         HttpRequest request = ApiRequests.createNewTaskRequestBuilder()
                 .content(content)
                 .order(order)
                 .priority(priority)
-                .due_string(due_string)
-                .due_date(due_date)
                 .due_lang(due_lang)
                 .build();
 
         var httpResponse = apiClient.sendRequest(request);
         assertEquals(httpResponse.statusCode(), 200);
         assertNotNull(httpResponse.body());
-        var guh = 1;
+        TaskDTO createdTask = objectMapper.readerFor(TaskDTO.class).readValue(httpResponse.body());
+        checkCreatedDefaultTask(createdTask, content);
     }
 
     private void checkCreatedDefaultTask(TaskDTO createdTask, String contentText) {
