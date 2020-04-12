@@ -6,9 +6,9 @@ import lombok.Data;
 
 import java.util.List;
 
+@Data
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Data
 public class TaskDTO {
     public Long id;
     public Long project_id;

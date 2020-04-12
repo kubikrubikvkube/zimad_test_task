@@ -24,6 +24,8 @@ import static java.text.MessageFormat.format;
 @UtilityClass
 @Log
 public class ApiRequests {
+    private static final ObjectMapper objectMapper = DefaultObjectMapper.getMapper();
+
     public static HttpRequest getProjectsRequest() {
         var projectsEndpointUri = getUriFromEndpoint(Endpoint.PROJECTS);
         return HttpRequest.newBuilder()
@@ -36,7 +38,6 @@ public class ApiRequests {
     @SneakyThrows(value = {JsonProcessingException.class})
     @Builder(builderMethodName = "createNewTaskRequestBuilder")
     public static HttpRequest createNewTaskRequest(String content, Integer project_id, Integer section_id, Integer parent, Integer order, List<Integer> label_ids, Integer priority, String due_string, String due_date, String due_datetime, String due_lang) {
-        ObjectMapper objectMapper = DefaultObjectMapper.getMapper();
         var dtoBuilder = CreateNewTaskRequestDTO.builder();
         CreateNewTaskRequestDTO taskRequestDTO = dtoBuilder
                 .content(content)

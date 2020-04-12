@@ -6,9 +6,10 @@ import lombok.Data;
 
 import java.util.List;
 
-@JsonAutoDetect
+
 @Data
 @Builder
+@JsonAutoDetect
 public class CreateNewTaskRequestDTO {
     public String content;
     public Integer project_id;

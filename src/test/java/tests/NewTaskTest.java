@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static net.ApiRequests.createNewTaskRequest;
 import static net.ApiRequests.getActiveTasksRequest;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,7 +50,7 @@ public class NewTaskTest {
                 }
                 """.formatted(contentText);
 
-        var httpResponse = apiClient.sendRequest(ApiRequests.createNewTaskRequest(contentRequest));
+        var httpResponse = apiClient.sendRequest(createNewTaskRequest(contentRequest));
         assertEquals(httpResponse.statusCode(), 200);
         assertNotNull(httpResponse.body());
         TaskDTO createdTask = objectMapper.readerFor(TaskDTO.class).readValue(httpResponse.body());
