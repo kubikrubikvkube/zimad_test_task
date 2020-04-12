@@ -7,6 +7,7 @@ public class DefaultObjectMapper {
     public static ObjectMapper getMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         return objectMapper;
     }
 }

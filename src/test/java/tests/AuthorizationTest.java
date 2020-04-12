@@ -26,7 +26,7 @@ public class AuthorizationTest {
     @Test
     @DisplayName("Authorization header should be processed by API and return code should be 200")
     public void testAuthorizationCanBePerformed() throws IOException {
-        HttpRequest getProjectsRequest = ApiRequests.getProjects();
+        HttpRequest getProjectsRequest = ApiRequests.getProjectsRequest();
         ApiClient apiClient = new ApiClient(httpClient);
         var httpResponse = apiClient.sendRequest(getProjectsRequest);
         assertEquals(httpResponse.statusCode(), 200, "Expected status code is 200");

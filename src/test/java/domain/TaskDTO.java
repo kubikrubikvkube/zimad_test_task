@@ -15,7 +15,7 @@ public class TaskDTO {
     public Long order;
     public String content;
     public Boolean completed;
-    public List label_ids;
+    public List<Integer> label_ids;
     public Long priority;
     public Long comment_count;
     public String created;

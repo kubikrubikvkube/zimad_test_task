@@ -16,9 +16,13 @@ public class ApiClient {
     }
 
     public HttpResponse<String> sendRequest(HttpRequest request) throws IOException {
-        log.info("Sending request " + request);
+        var requestLogMsg = String.format("Sending request %s", request);
+        log.info(requestLogMsg);
         try {
-            return apiClient.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = apiClient.send(request, HttpResponse.BodyHandlers.ofString());
+            var responseLogMsg = String.format("Received response with status code %d and body %s", response.statusCode(), response.body());
+            log.info(responseLogMsg);
+            return response;
         } catch (IOException | InterruptedException e) {
             throw new IOException(String.format("Can't complete request %s to %s", request, request.uri()), e);
         }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.TaskDTO;
 import lombok.extern.java.Log;
 import net.ApiClient;
+import net.ApiRequests;
 import net.HttpsClients;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,13 +15,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static net.ApiRequests.createNewTask;
-import static net.ApiRequests.getActiveTasks;
+import static net.ApiRequests.getActiveTasksRequest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Log
@@ -48,14 +49,14 @@ public class TasksTest {
                 }
                 """.formatted(contentText);
 
-        var httpResponse = apiClient.sendRequest(createNewTask(contentRequest));
+        var httpResponse = apiClient.sendRequest(ApiRequests.createNewTaskRequest(contentRequest));
         assertEquals(httpResponse.statusCode(), 200);
         assertNotNull(httpResponse.body());
         TaskDTO createdTask = objectMapper.readerFor(TaskDTO.class).readValue(httpResponse.body());
         var createdTaskId = createdTask.getId();
         checkCreatedDefaultTask(createdTask, contentText);
 
-        HttpResponse<String> activeTasksResponse = apiClient.sendRequest(getActiveTasks());
+        HttpResponse<String> activeTasksResponse = apiClient.sendRequest(getActiveTasksRequest());
         assertEquals(activeTasksResponse.statusCode(), 200, "Expected status code is 200");
         assertNotNull(activeTasksResponse.body());
         List<TaskDTO> activeTasks = objectMapper.readValue(activeTasksResponse.body(), new TypeReference<>() {
@@ -70,8 +71,20 @@ public class TasksTest {
     @ParameterizedTest
     @DisplayName("All positive test cases should be passed. Implemented only context-unaware cases.")
     @CsvFileSource(resources = "TaskTestsPositiveCases.csv", numLinesToSkip = 1)
-    public void allPositiveTestCasesShouldBePassed(String content, Integer order, Integer priority, String due_string, String due_date, String due_lang) {
-        log.info("content,order,priority,due_string,due_date,due_lang");
+    public void allPositiveTestCasesShouldBePassed(String content, Integer order, Integer priority, String due_string, String due_date, String due_lang) throws IOException {
+        HttpRequest request = ApiRequests.createNewTaskRequestBuilder()
+                .content(content)
+                .order(order)
+                .priority(priority)
+                .due_string(due_string)
+                .due_date(due_date)
+                .due_lang(due_lang)
+                .build();
+
+        var httpResponse = apiClient.sendRequest(request);
+        assertEquals(httpResponse.statusCode(), 200);
+        assertNotNull(httpResponse.body());
+        var guh = 1;
     }
 
     private void checkCreatedDefaultTask(TaskDTO createdTask, String contentText) {
