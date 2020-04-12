@@ -4,13 +4,13 @@ import authorization.AuthorizationCredentials;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.CreateNewTaskRequestDTO;
+import domain.Endpoint;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.java.Log;
-import tests.DefaultObjectMapper;
-import tests.Endpoint;
+import utils.DefaultObjectMapper;
 
 import java.net.URI;
 import java.net.URISyntaxException;

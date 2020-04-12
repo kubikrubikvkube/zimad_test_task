@@ -1,4 +1,4 @@
-package tests;
+package domain;
 
 import lombok.Getter;
 

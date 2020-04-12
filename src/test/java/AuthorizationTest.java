@@ -1,5 +1,3 @@
-package tests;
-
 import lombok.extern.java.Log;
 import net.ApiClient;
 import net.ApiRequests;
